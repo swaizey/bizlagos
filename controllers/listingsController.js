@@ -29,36 +29,31 @@ const getListing = async (req, res) =>{
 
 /// Create a Listing
 const creatListing = async (req, res) =>{
-    const {userId, title, location, desc} = req.body
+    const {user_id, title, location, desc, job} = req.body
+
+    let emptyFields = []
+    if(!title){
+        emptyFields.push('title')
+    }
+    if(!location){
+        emptyFields.push('location')
+    }
+    if(!desc){
+        emptyFields.push('desc')
+    }
+    if(emptyFields.length > 0){
+        return res.status(400).json({error:'Please fill all fields', emptyFields})
+    }
     try{
-        const listing = await Listings.create({userId, title, location, desc})
+        const user_id = req.user._id
+
+        const listing = await Listings.create({user_id, title, location, desc, job})
         res.status(200).json(listing)
     }catch(err){
         res.status(400).json({error: err.message})
     }
 }
 
-//Update listing
-
-const updateListings =  async (req, res) =>{
-    const listingId = req.params.id
-    const{currentUserId, currentAdminStatus} = req.body
-    if(!mongoose.Types.ObjectId.isValid(listingId)){
-        return res.status(404).json({error: 'No listing found'})
-    }
-    
-        try{
-            const listing = await Listings.findById(listingId)
-            if(listing.userId === currentUserId || currentAdminStatus){
-              await listing.updateOne({$set: req.body})
-                res.status(200).json(listing)
-        }else{
-            return res.status(409).json({msg:"Can not update another users post"})
-        }
-    }catch(err){
-            res.json(err)
-        } 
-}
 
 //Delete listing
 const deletListing = async (req, res) =>{
@@ -78,6 +73,5 @@ module.exports = {
     getListings,
     getListing,
     creatListing,
-    updateListings,
     deletListing
 }

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const listingSchema = new mongoose.Schema({
-    userId:{
+    user_id:{
         type: String,
         required: true
     },
@@ -14,6 +14,10 @@ const listingSchema = new mongoose.Schema({
         required: true
     },
     desc:{
+        type: String,
+        required: true
+    },
+    job:{
         type: String,
         required: true
     }

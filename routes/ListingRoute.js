@@ -1,12 +1,14 @@
 const express = require('express')
 const listingsController = require('../controllers/listingsController')
+const requireAuth = require('../middleware/requireAuth')
 const router = express.Router()
 
 router.get('/', listingsController.getListings)
 router.get('/:id', listingsController.getListing)
-router.post('/', listingsController.creatListing)
-router.patch('/:id', listingsController.updateListings)
 router.delete('/:id', listingsController.deletListing)
+
+router.use(requireAuth)
+router.post('/', listingsController.creatListing)
 
 module.exports = router
 

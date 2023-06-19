@@ -7,7 +7,32 @@ const jwt = require('jsonwebtoken')
 const createToken = (_id) =>{
    return jwt.sign({_id}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '3d'})
 }
+
+// Login users
+const loginUser = async(req, res) =>{
+    const {username, password} = req.body
+
+    try{
+        const user = await User.login(username, password)
+
+        const token = createToken(user._id)
+
+        res.status(200).json({username, token, user})
+    }catch(error){
+        res.status(400).json({error:error.message})
+    }
+}
 //Find user
+const getAllUser = async(req, res) =>{
+    try{
+        const user = await User.find()
+        if(user){
+            res.status(200).json(user)
+        }
+    }catch(error){
+        res.status(400).json({error:"No user found"})
+    }
+}
 const getUser = async(req, res)=>{
     const id = req.params.id
     try{
@@ -23,27 +48,55 @@ const getUser = async(req, res)=>{
 
 //Register new user
 const registerUser = async(req, res) =>{
-    const {username, password, firstname, confirmPwd,lastname, email } = req.body
+    const {username, password, firstname, confirmPwd,lastname, email, number } = req.body
+    
+    let emptyFields = []
+
+    if(!username){
+        emptyFields.push('username')
+    }
+    if(!firstname){
+        emptyFields.push('firstname')
+    }
+    if(!lastname){
+        emptyFields.push('lastname')
+    }
+    if(!password){
+        emptyFields.push('password')
+    }
+    if(!confirmPwd){
+        emptyFields.push('confirmPwd')
+    }
+    if(!email){
+        emptyFields.push('email')
+    }
+    if(!number){
+        emptyFields.push('number')
+    }
+    if(emptyFields.length > 0){
+       return res.status(400).json({error: 'Please fill all fields', emptyFields})
+    }
+
     if(password !== confirmPwd){
-        return res.status(400).json({msg:"Password does not match"})
-    }
-    if(!validator.isEmail(email)){
-        return res.status(500).json({msg:"Email not valid"})
-    }
-    if(!validator.isStrongPassword(password)){
-        return res.status(500).json({msg:"password not strong enough"})
-    }
+        return res.status(400).json({error:'Password and Confirm password must match'})
+         
+     }
+     if(!validator.isEmail(email)){
+         return res.status(400).json({error:'Email is not valid'})
+             
+     }
+    
     const userExist = await User.findOne({username}).lean().exec()
     const mailExist = await User.findOne({email}).lean().exec()
     
     if(userExist){
-        return res.status(409).json({msg:"Username exist"})
+        return res.status(409).json({error:"Username exist"})
     }
     if(mailExist){
-        return res.status(409).json({msg:"Mail exist"})
+        return res.status(409).json({error:"Mail exist"})
     }
         const hashedPwd = await bcrypt.hash(password, 10)
-        const newUser = new User({username, "password":hashedPwd, firstname, lastname, email})
+        const newUser = new User({username, "password":hashedPwd, firstname, lastname, email, number})
         try{
             await newUser.save()
             //Create token
@@ -51,7 +104,7 @@ const registerUser = async(req, res) =>{
             res.status(200).json({username, token})
 
         }catch(error){
-            res.status(500).json({msg:error.message})
+            res.status(500).json({error:error.message})
         }
     
 }
@@ -70,7 +123,7 @@ const updateUser = async(req, res) =>{
         }
        
     }else{
-        return res.status(403).json({msg:'Can only update your profile'})
+        return res.status(403).json({error:'Can only update your profile'})
     }
 
 }
@@ -81,20 +134,22 @@ const deleteUser = async(req, res)=>{
     if(id === currentUserId || currentUserAdminStatus){
         try{
             const user = await User.findByIdAndDelete(id)
-            res.status(200).json({msg:'User deleted'})
+            res.status(200).json({error:'User deleted'})
         }
-        catch(err){
-            res.status(500).json({msg:"Something went wrong"})
+        catch(error){
+            res.status(500).json({error:"Something went wrong"})
         }
     }else{
-        res.status(409).json({msg:'Action forbbiden'})
+        res.status(409).json({error:'Action forbbiden'})
     }
 }
 
 
 module.exports ={
+    getAllUser,
     registerUser,
     updateUser,
     getUser,
-    deleteUser
+    deleteUser,
+    loginUser
 }

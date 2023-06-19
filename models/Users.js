@@ -18,17 +18,15 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    confirmPwd:{
-        type: String      
-    },
-    
     email:{
         type: String,
+        required: true,
         unique:true
     },
     number:{
-        type: Number,
-        
+        type: String,
+        unique:true,
+        required:true
     },
     isAdmin:{
         type: Boolean,
@@ -42,14 +40,14 @@ const userSchema = new mongoose.Schema({
 },{timestamps: true})
 
 
-userSchema.statics.login = async function(email, password){
-    if(!email || !password){
+userSchema.statics.login = async function(username, password){
+    if(!username || !password){
         throw Error ('All fields are required')
     }
-    const user = await this.findOne({email})
+    const user = await this.findOne({username})
 
     if(!user){
-        throw Error('Incorrect email')
+        throw Error('User does not exist')
     }
     const match = await bcrypt.compare(password, user.password)
     if(!match){
