@@ -96,12 +96,12 @@ const registerUser = async(req, res) =>{
         return res.status(409).json({error:"Mail exist"})
     }
         const hashedPwd = await bcrypt.hash(password, 10)
-        const newUser = new User({username, "password":hashedPwd, firstname, lastname, email, number})
+        const user = new User({username, "password":hashedPwd, firstname, lastname, email, number})
         try{
-            await newUser.save()
+            await user.save()
             //Create token
-            const token = createToken(newUser._id)
-            res.status(200).json({username, token})
+            const token = createToken(user._id)
+            res.status(200).json({username, token, user})
 
         }catch(error){
             res.status(500).json({error:error.message})

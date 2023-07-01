@@ -29,7 +29,7 @@ const getListing = async (req, res) =>{
 
 /// Create a Listing
 const creatListing = async (req, res) =>{
-    const {user_id, title, location, desc, job} = req.body
+    const {user_id, title, location, desc, jobType} = req.body
 
     let emptyFields = []
     if(!title){
@@ -47,7 +47,7 @@ const creatListing = async (req, res) =>{
     try{
         const user_id = req.user._id
 
-        const listing = await Listings.create({user_id, title, location, desc, job})
+        const listing = await Listings.create({user_id, title, location, desc, jobType})
         res.status(200).json(listing)
     }catch(err){
         res.status(400).json({error: err.message})

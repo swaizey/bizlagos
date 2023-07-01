@@ -8,14 +8,22 @@ const cors = require('cors')
 const app = express()
 const dbConnect = require('./config/DBConnect')
 const mongoose = require('mongoose')
-
+const ChatRoute = require("./routes/ChatRoute")
+const MessageRoute = require('./routes/MessageRoute')
+const multer = require('multer')
+const bodyParser = require('body-parser')
 
 dbConnect()
 app.use(cors(corsOptions))
-app.use(express.json())
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended:true}))
+
 
 app.use('/user', UserRoute)
 app.use('/listings', listingsRoutes )
+
+app.use('/chat', ChatRoute)
+app.use('/message', MessageRoute)
 
 
 

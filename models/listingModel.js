@@ -17,9 +17,13 @@ const listingSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    job:{
+    jobType:{
         type: String,
         required: true
+    },
+    img:{
+        data:Buffer,
+        contentType: String
     }
 },{timestamps: true})
 

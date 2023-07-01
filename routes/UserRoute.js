@@ -9,6 +9,7 @@ router.post('/login', UserController.loginUser)
 
 router.use(requireAuth)
 
+router.get('/', UserController.getAllUser)
 router.get('/:id', UserController.getUser)
 router.put('/:id', UserController.updateUser)
 router.delete('/:id', UserController.deleteUser)
